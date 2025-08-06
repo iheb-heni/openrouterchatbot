@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .bot {
+            background-color: #e5e5ea;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        #message {
+            flex: 1;
+            border: none;
+            padding: 15px;
+            font-size: 1em;
+        }
+
+        #message:focus {
+            outline: none;
+        }
+
+        button {
+            padding: 0 20px;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #357ab7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">🤖 Chatbot</div>
+    <div class="chat-box" id="chatBox">
+        <!-- Messages appear here -->
+    </div>
+    <div class="chat-input">
+        <input type="text" id="message" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+
+    function appendMessage(message, type) {
+        const bubble = document.createElement("div");
+        bubble.classList.add("chat-bubble", type);
+        bubble.innerText = message;
+        chatBox.appendChild(bubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        appendMessage(message, "user");
+        messageInput.value = "";
+
+        try {
+            const res = await fetch("/api/chat/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await res.json();
+            if (data.response) {
+                appendMessage(data.response.trim(), "bot");
+            } else {
+                appendMessage("Error: No response from server.", "bot");
+            }
+        } catch (err) {
+            appendMessage("Error: Could not connect to server.", "bot");
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    }
+</script>
+
+</body>
+</html>
