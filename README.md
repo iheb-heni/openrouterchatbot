@@ -20,8 +20,8 @@ This is a basic Django application that integrates a chatbot using the OpenRoute
 
 1. **Clone the repository:**
 
-git clone https://github.com/your-username/django-openrouter-chatbot.git
-cd django-openrouter-chatbot
+git clone https://github.com/iheb-heni/openrouterchatbot.git
+cd openrouterchatbot
 Create a virtual environment and activate it:
 
 python -m venv venv
